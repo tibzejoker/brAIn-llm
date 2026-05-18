@@ -4,5 +4,5 @@
   "license": "MIT",
   "description": "brAIn LLM-domain nodes — generic LLM caller, CLI agent wrapper.",
   "scripts": { "build": "pnpm -r build" },
-  "devDependencies": { "@types/node": "^20.11.0", "typescript": "^5.4.0" }
+  "devDependencies": { "@types/node": "^20.11.0", "typescript": "^6.0.3" }
 }
