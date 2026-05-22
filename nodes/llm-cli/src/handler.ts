@@ -1,22 +1,5 @@
-import { exec } from "child_process";
 import type { NodeHandler, TextPayload } from "@brain/sdk";
-import { CLIRegistry } from "@brain/core";
-
-function execCommand(
-  command: string,
-  cwd: string,
-  timeoutMs: number,
-  signal: AbortSignal,
-): Promise<{ stdout: string; stderr: string; exitCode: number }> {
-  return new Promise((resolve) => {
-    // Passing `signal` to exec wires SIGTERM-on-abort: the runner can
-    // kill a long-running CLI agent (claude / codex / gemini) the
-    // moment a higher-criticality message preempts the iteration.
-    exec(command, { cwd, timeout: timeoutMs, maxBuffer: 5 * 1024 * 1024, signal }, (err, stdout, stderr) => {
-      resolve({ stdout, stderr, exitCode: err ? (err.code ?? 1) : 0 });
-    });
-  });
-}
+import { CLIRegistry, execCommand } from "@brain/core";
 
 export const handler: NodeHandler = async (ctx) => {
   const overrides = ctx.node.config_overrides ?? {} as Record<string, unknown>;
@@ -42,7 +25,7 @@ export const handler: NodeHandler = async (ctx) => {
     const command = registry.buildCommand(cli, prompt);
 
     try {
-      const result = await execCommand(command, cwd, timeoutMs, ctx.signal);
+      const result = await execCommand(command, { cwd, timeoutMs, signal: ctx.signal });
       const output = result.stdout || result.stderr;
       const truncated = output.length > maxOutput ? `${output.slice(0, maxOutput)}\n... (truncated)` : output;
 
